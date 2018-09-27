@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.github.mikephil.charting.charts.CombinedChart;
-import com.github.mikephil.charting.components.AxisBase;
+
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.CandleData;
@@ -17,7 +17,6 @@ import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.gson.Gson;
@@ -42,10 +41,11 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mCombinedChart.setScaleYEnabled(false); //禁止Y轴方向放大
         mCombinedChart.setAutoScaleMinMaxEnabled(true);
         mCombinedChart.setOnChartValueSelectedListener(this);
-        //mCombinedChart.setScale
-
+        mCombinedChart.setMinOffset(5f);
 
         XAxis xAxis = mCombinedChart.getXAxis();
+        xAxis.setDrawAxisLine(false);
+        xAxis.setDrawLabels(false);
 
         xAxis.setDrawGridLines(false);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         yAxisRight.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
 
         yAxisRight.setTextColor(Color.LTGRAY);
+        yAxisRight.setYOffset(0f);
+        yAxisRight.setXOffset(0f);
         //yAxisRight.setD
 
 
@@ -158,8 +160,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         CandleDataSet candleDataSet = new CandleDataSet(candleEntries, "k線圖");
         candleDataSet.setDrawValues(false);
         LineDataSet lineDataSetMA5 = new LineDataSet(MA5, "MA5");
-        LineDataSet lineDataSetMA10 = new LineDataSet(MA10, "MA5");
-        LineDataSet lineDataSetMA30 = new LineDataSet(MA30, "MA5");
+        LineDataSet lineDataSetMA10 = new LineDataSet(MA10, "MA10");
+        LineDataSet lineDataSetMA30 = new LineDataSet(MA30, "MA30");
 
 
         candleDataSet.setIncreasingColor(Color.parseColor("#03C087"));
