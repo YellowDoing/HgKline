@@ -81,10 +81,12 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
 
     }
 
+    //设置数据参数
     private void setData(){
 
     }
 
+    //初始化变量
     private void initParam(AttributeSet attrs) {
         if (attrs != null){
 
