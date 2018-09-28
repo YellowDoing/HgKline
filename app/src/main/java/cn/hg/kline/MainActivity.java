@@ -27,16 +27,31 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cn.hg.huobikline.KlineView;
+
 public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
 
     private CombinedChart mCombinedChart;
+    private KlineView mKlineView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mKlineView = findViewById(R.id.k_line_view);
 
+        List<Data> datas = new Gson().fromJson(JsonReader.getJson("data.json", this), new TypeToken<List<Data>>() {
+        }.getType());
+        List<CandleEntry> candleEntries = new ArrayList<>();
+        for (int i = 0; i < datas.size(); i++) {
+            Data data = datas.get(i);
+            candleEntries.add(new CandleEntry(i, data.getHigh(), data.getLow(), data.getOpen(), data.getClose()));
+        }
+        mKlineView.setData(candleEntries);
+    }
+
+    /*private void no() {
         mCombinedChart = findViewById(R.id.chart);
         mCombinedChart.setScaleYEnabled(false); //禁止Y轴方向放大
         mCombinedChart.setAutoScaleMinMaxEnabled(true);
@@ -69,16 +84,15 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
 
 
-     /* mCombinedChart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
+     *//* mCombinedChart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 return transferLongToDate((long)value);
             }
-        });*/
+        });*//*
 
 
-        List<Data> datas = new Gson().fromJson(JsonReader.getJson("data.json", this), new TypeToken<List<Data>>() {
-        }.getType());
+
 
         List<CandleEntry> candleEntries = new ArrayList<>();
         List<Entry> MA10 = new ArrayList<>();
@@ -205,8 +219,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mCombinedChart.setData(combinedData);
 
         mCombinedChart.animateX(1000);
-
-    }
+    }*/
 
     @Override
     public void onValueSelected(Entry e, Highlight h) {

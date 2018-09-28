@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -34,53 +35,62 @@ import java.util.List;
  */
 public class KlineView extends FrameLayout implements OnChartValueSelectedListener {
 
-    private TextView tv_ma5,tv_ma10,tv_ma30;
+    private TextView tv_ma5, tv_ma10, tv_ma30;
     private CombinedChart combinedChart;
     private List<CandleEntry> candleEntries = new ArrayList<>();
+    private List<Entry> minuteEntries = new ArrayList<>();
     private List<Entry> ma10Entries = new ArrayList<>();
     private List<Entry> ma30Entries = new ArrayList<>();
     private List<Entry> ma5Entries = new ArrayList<>();
+    private List<Entry> ma60sEntries = new ArrayList<>();
 
     private boolean isDrawValue = false;
-    private float maLineWidth,maTextSize;
-    private int increasingColor,decreasingColor,neutralColor;
-    private int color_ma5,color_ma10,color_ma30,yAxisTextColor;
 
+    private float maLineWidth,
+            maTextSize;
+
+
+    private int increasingColor,
+            decreasingColor,
+            neutralColor,
+            color_ma5,
+            color_ma10,
+            color_ma30,
+            color_ma60s,
+            yAxisTextColor;
 
 
     public KlineView(@NonNull Context context) {
         super(context);
-        init(null);
+        init();
     }
 
-    public KlineView(@NonNull Context context,  @Nullable AttributeSet attrs) {
+    public KlineView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init(attrs);
+        init();
     }
 
-    public KlineView(@NonNull Context context,@Nullable AttributeSet attrs, int defStyleAttr) {
+    public KlineView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(attrs);
+        init();
     }
 
-    private void init(AttributeSet attrs){
+    private void init() {
 
-        LayoutInflater.from(getContext()).inflate(R.layout.view_kline,this,true);
+        LayoutInflater.from(getContext()).inflate(R.layout.view_kline, this, true);
 
         tv_ma5 = findViewById(R.id.tv_ma5);
         tv_ma10 = findViewById(R.id.tv_ma10);
         tv_ma30 = findViewById(R.id.tv_ma30);
         combinedChart = findViewById(R.id.chart);
 
-        initParam(attrs);
+        initParam();
 
         setCombineChart();
 
         setXAxis();
 
         setYAxis();
-
-        setParam();
     }
 
     private void setParam() {
@@ -88,9 +98,9 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         tv_ma10.setTextColor(color_ma10);
         tv_ma30.setTextColor(color_ma30);
 
-        tv_ma5.setTextSize(maTextSize);
-        tv_ma10.setTextSize(maTextSize);
-        tv_ma30.setTextSize(maTextSize);
+        tv_ma5.setTextSize(TypedValue.COMPLEX_UNIT_SP, maTextSize);
+        tv_ma10.setTextSize(TypedValue.COMPLEX_UNIT_SP, maTextSize);
+        tv_ma30.setTextSize(TypedValue.COMPLEX_UNIT_SP, maTextSize);
     }
 
     //设置CombinedChart参数
@@ -99,10 +109,12 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         combinedChart.setAutoScaleMinMaxEnabled(true); //?
         combinedChart.setOnChartValueSelectedListener(this); //图表点击事件
         combinedChart.setMinOffset(5f); //设置边距
+        combinedChart.setNoDataText(""); //无数据显示
+        combinedChart.getLegend().setEnabled(false); //禁止顯示圖例
     }
 
     //设置XAxis参数
-    private void setXAxis(){
+    private void setXAxis() {
         XAxis xAxis = combinedChart.getXAxis();
         xAxis.setDrawAxisLine(false); //不画线
         xAxis.setDrawLabels(false); //不画字
@@ -110,7 +122,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     }
 
     //设置YAxis参数
-    private void setYAxis(){
+    private void setYAxis() {
         YAxis yAxisLeft = combinedChart.getAxisLeft();
         yAxisLeft.setDrawGridLines(false); //不画网格
         yAxisLeft.setDrawAxisLine(false);//不画线
@@ -129,11 +141,19 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     /**
      * 设置分时图
      */
-    public void  setMinuteDta(){
+    public void setMinuteData(List<Entry> data) {
+        minuteEntries = data;
+        for (Entry entry : minuteEntries){
+            ma60sEntries.add(new Entry());
+        }
+
+        LineDataSet dataSet = new LineDataSet(minuteEntries, "");
 
     }
 
-    public void setData(List<CandleEntry> data){
+    public void setData(List<CandleEntry> data) {
+        setParam();
+
         candleEntries = data;
         ma5Entries.clear();
         ma10Entries.clear();
@@ -163,6 +183,11 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         lineDataSetMA5.setDrawCircles(false);
         lineDataSetMA10.setDrawCircles(false);
         lineDataSetMA30.setDrawCircles(false);
+
+        //平均線顏色
+        lineDataSetMA5.setColor(color_ma5);
+        lineDataSetMA10.setColor(color_ma10);
+        lineDataSetMA30.setColor(color_ma30);
 
         //平均线的宽度
         lineDataSetMA5.setLineWidth(maLineWidth);
@@ -248,19 +273,28 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     }
 
     private void addMA5Data(int i) {
-        if (i > 3) { ma5Entries.add(new Entry(i, (candleEntries.get(i - 4).getClose() +
+        if (i > 3) {
+            ma5Entries.add(new Entry(i, (candleEntries.get(i - 4).getClose() +
                     candleEntries.get(i - 3).getClose() +
                     candleEntries.get(i - 2).getClose() +
                     candleEntries.get(i - 1).getClose() +
-                    candleEntries.get(i).getClose()) / 5f)); }
+                    candleEntries.get(i).getClose()) / 5f));
+        }
     }
 
     //初始化变量
-    private void initParam(AttributeSet attrs) {
-        if (attrs != null){
+    private void initParam() {
 
+        maLineWidth = DimensUtil.px2dp(getContext(),2);
+        increasingColor = Color.parseColor("#03C087");
+        decreasingColor = Color.parseColor("#E66C41");
+        neutralColor = Color.parseColor("#03C087");
+        color_ma5 = Color.parseColor("#F6DC93");
+        color_ma10 = Color.parseColor("#60D0BF");
+        color_ma30 = Color.parseColor("#CA91FC");
+        yAxisTextColor = Color.parseColor("#667FA0");
+        maTextSize = 10;
 
-        }
     }
 
 
