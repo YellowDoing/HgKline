@@ -134,6 +134,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         yAxisRight.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART); //文字显示在内部
         yAxisRight.setYOffset(0f); //文字靠边
         yAxisRight.setXOffset(0f); //文字靠边
+        //sadasd
 
         yAxisRight.setTextColor(yAxisTextColor);
     }
