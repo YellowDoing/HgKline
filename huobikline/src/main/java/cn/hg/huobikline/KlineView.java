@@ -39,11 +39,11 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     private TextView tv_ma5, tv_ma10, tv_ma30;
     private CombinedChart combinedChart;
     private List<CandleEntry> candleEntries = new ArrayList<>();
-    private List<Entry> minuteEntries = new ArrayList<>();
+    private List<CandleEntry> minuteEntries = new ArrayList<>();
     private List<Entry> ma10Entries = new ArrayList<>();
     private List<Entry> ma30Entries = new ArrayList<>();
     private List<Entry> ma5Entries = new ArrayList<>();
-    private List<Entry> ma60sEntries = new ArrayList<>();
+    private List<Entry> ma60mEntries = new ArrayList<>();
 
     private boolean isDrawValue = false;
 
@@ -57,7 +57,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
             color_ma5,
             color_ma10,
             color_ma30,
-            color_ma60s,
+            color_ma60m,
             yAxisTextColor;
 
 
@@ -216,14 +216,41 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     /**
      * 设置分时图
      */
-    public void setMinuteData(List<Entry> data) {
+    public void setMinuteData(List<CandleEntry> data) {
         isMinute = true;
         minuteEntries = data;
-        for (Entry entry : minuteEntries) {
-            ma60sEntries.add(new Entry());
+
+        List<Entry> minutesData = DataTransferHelper.transfer2Entry(data);
+
+        if (minuteEntries.size() > 59){
+            for (int i = 59; i < minuteEntries.size(); i++) {
+                CandleEntry entry = minuteEntries.get(i);
+                ma60mEntries.add(new Entry(entry.getX(),MACalculator.calculate(i,60,minuteEntries)));
+            }
         }
 
-        LineDataSet dataSet = new LineDataSet(minuteEntries, "");
+        LineDataSet dataSet = new LineDataSet(minutesData, "");
+        dataSet.setColor(Color.parseColor("#66b3ff")); //折线颜色
+        dataSet.setDrawFilled(true); //内部填充
+        dataSet.setLineWidth(1f); //折线的宽度
+        dataSet.setDrawCircles(false); //不画圆
+        dataSet.setDrawValues(false); //不显示数据
+        combinedChart.getDescription().setEnabled(false); //禁用描述
+        combinedChart.getLegend().setEnabled(false); //禁用图例
+
+        LineDataSet lineDataSetMA60 = new LineDataSet(ma60mEntries, "");
+        lineDataSetMA60.setDrawCircles(false); //ma60不画圆
+        lineDataSetMA60.setColor(color_ma60m); //ma60颜色
+        lineDataSetMA60.setLineWidth(maLineWidth);//ma60线的宽度
+        lineDataSetMA60.setDrawValues(false);//不显示数据
+
+
+
+        LineData lineData = new LineData(dataSet,lineDataSetMA60);
+        CombinedData combinedData = new CombinedData();
+        combinedData.setData(lineData);
+        combinedChart.setData(combinedData);
+        combinedChart.animateX(800);
 
     }
 
@@ -269,6 +296,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         lineDataSetMA10.setColor(color_ma10);
         lineDataSetMA30.setColor(color_ma30);
 
+
         //平均线的宽度
         lineDataSetMA5.setLineWidth(maLineWidth);
         lineDataSetMA10.setLineWidth(maLineWidth);
@@ -304,62 +332,21 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
 
     private void addMA30Data(int i) {
         if (i > 28) {
-            ma30Entries.add(new Entry(i, (
-                    candleEntries.get(i - 29).getClose() +
-                            candleEntries.get(i - 28).getClose() +
-                            candleEntries.get(i - 27).getClose() +
-                            candleEntries.get(i - 26).getClose() +
-                            candleEntries.get(i - 25).getClose() +
-                            candleEntries.get(i - 24).getClose() +
-                            candleEntries.get(i - 23).getClose() +
-                            candleEntries.get(i - 22).getClose() +
-                            candleEntries.get(i - 21).getClose() +
-                            candleEntries.get(i - 20).getClose() +
-                            candleEntries.get(i - 19).getClose() +
-                            candleEntries.get(i - 18).getClose() +
-                            candleEntries.get(i - 17).getClose() +
-                            candleEntries.get(i - 16).getClose() +
-                            candleEntries.get(i - 15).getClose() +
-                            candleEntries.get(i - 14).getClose() +
-                            candleEntries.get(i - 13).getClose() +
-                            candleEntries.get(i - 12).getClose() +
-                            candleEntries.get(i - 11).getClose() +
-                            candleEntries.get(i - 10).getClose() +
-                            candleEntries.get(i - 9).getClose() +
-                            candleEntries.get(i - 8).getClose() +
-                            candleEntries.get(i - 7).getClose() +
-                            candleEntries.get(i - 6).getClose() +
-                            candleEntries.get(i - 5).getClose() +
-                            candleEntries.get(i - 4).getClose() +
-                            candleEntries.get(i - 3).getClose() +
-                            candleEntries.get(i - 2).getClose() +
-                            candleEntries.get(i - 1).getClose() +
-                            candleEntries.get(i).getClose()) / 30f));
+            ma30Entries.add(new Entry(candleEntries.get(i).getX(), MACalculator.calculate(i,30,candleEntries)));
         }
     }
 
+
+
     private void addMA10Data(int i) {
         if (i > 8) {
-            ma10Entries.add(new Entry(i, (candleEntries.get(i - 9).getClose() +
-                    candleEntries.get(i - 8).getClose() +
-                    candleEntries.get(i - 7).getClose() +
-                    candleEntries.get(i - 6).getClose() +
-                    candleEntries.get(i - 5).getClose() +
-                    candleEntries.get(i - 4).getClose() +
-                    candleEntries.get(i - 3).getClose() +
-                    candleEntries.get(i - 2).getClose() +
-                    candleEntries.get(i - 1).getClose() +
-                    candleEntries.get(i).getClose()) / 10f));
+            ma10Entries.add(new Entry(candleEntries.get(i).getX(), MACalculator.calculate(i,10,candleEntries)));
         }
     }
 
     private void addMA5Data(int i) {
         if (i > 3) {
-            ma5Entries.add(new Entry(i, (candleEntries.get(i - 4).getClose() +
-                    candleEntries.get(i - 3).getClose() +
-                    candleEntries.get(i - 2).getClose() +
-                    candleEntries.get(i - 1).getClose() +
-                    candleEntries.get(i).getClose()) / 5f));
+            ma5Entries.add(new Entry(candleEntries.get(i).getX(), MACalculator.calculate(i,5,candleEntries)));
         }
     }
 
@@ -373,6 +360,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         color_ma5 = Color.parseColor("#F6DC93");
         color_ma10 = Color.parseColor("#60D0BF");
         color_ma30 = Color.parseColor("#CA91FC");
+        color_ma60m = Color.parseColor("#F6DC93");
         yAxisTextColor = Color.parseColor("#667FA0");
         maTextSize = 10;
 
