@@ -35,6 +35,7 @@ import java.util.List;
  */
 public class KlineView extends FrameLayout implements OnChartValueSelectedListener {
 
+    private boolean isMinute = false; //是否是分時圖
     private TextView tv_ma5, tv_ma10, tv_ma30;
     private CombinedChart combinedChart;
     private List<CandleEntry> candleEntries = new ArrayList<>();
@@ -111,6 +112,78 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         combinedChart.setMinOffset(5f); //设置边距
         combinedChart.setNoDataText(""); //无数据显示
         combinedChart.getLegend().setEnabled(false); //禁止顯示圖例
+
+
+        combinedChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+
+                if (isMinute) { //分時圖
+                    // e.get
+                } else {
+                    setMaData(e);
+                }
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
+    }
+
+    private void setMaData(Entry e) {
+
+
+
+        int j = candleEntries.indexOf(e);
+        if (j == -1) {
+            int j5 = ma5Entries.indexOf(e);
+            if (j5 == -1) {
+                int j10 = ma10Entries.indexOf(e);
+                if (j10 == -1) { //点击的ma30
+                    int j30 = ma30Entries.indexOf(e);
+                    tv_ma30.setText("MA30:" + e.getY());
+                    tv_ma10.setText("MA10:" + ma10Entries.get(j30 + 20).getY());
+                    tv_ma5.setText("MA5:" + ma5Entries.get(j30 + 25).getY());
+                } else{ //点击的ma10
+                    tv_ma5.setText("MA5:" + ma5Entries.get(j10+5).getY());
+                    tv_ma10.setText("MA10:" + e.getY());
+                    if (j10 > 19)
+                        tv_ma30.setText("MA30:" + ma30Entries.get(j10 - 20
+                        ).getY());
+                    else
+                        tv_ma30.setText("");
+                }
+            } else{  //点击的ma5
+                tv_ma5.setText("MA5:" + e.getY());
+                if (j5 > 4)
+                    tv_ma10.setText("MA10:" + ma10Entries.get(j5 - 5).getY());
+                else
+                    tv_ma10.setText("");
+
+                if (j5 > 24)
+                    tv_ma30.setText("MA30:" + ma30Entries.get(j5 - 25).getY());
+                else
+                    tv_ma30.setText("");
+            }
+        } else { //点击的蜡烛
+
+            if (j > 3)
+                tv_ma5.setText("MA5:" + ma5Entries.get(j - 4).getY());
+            else
+                tv_ma5.setText("");
+
+            if (j > 8)
+                tv_ma10.setText("MA10:" + ma10Entries.get(j - 9).getY());
+            else
+                tv_ma10.setText("");
+
+            if (j > 28)
+                tv_ma30.setText("MA30:" + ma30Entries.get(j - 29).getY());
+            else
+                tv_ma30.setText("");
+        }
     }
 
     //设置XAxis参数
@@ -144,8 +217,9 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
      * 设置分时图
      */
     public void setMinuteData(List<Entry> data) {
+        isMinute = true;
         minuteEntries = data;
-        for (Entry entry : minuteEntries){
+        for (Entry entry : minuteEntries) {
             ma60sEntries.add(new Entry());
         }
 
@@ -154,6 +228,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     }
 
     public void setData(List<CandleEntry> data) {
+        isMinute = false;
         setParam();
 
         candleEntries = data;
@@ -170,11 +245,13 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
             addMA30Data(i);
         }
 
+
         CandleDataSet candleDataSet = new CandleDataSet(candleEntries, "");
         candleDataSet.setDrawValues(isDrawValue); //是否显示值  默认false
         LineDataSet lineDataSetMA5 = new LineDataSet(ma5Entries, "");
         LineDataSet lineDataSetMA10 = new LineDataSet(ma10Entries, "");
         LineDataSet lineDataSetMA30 = new LineDataSet(ma30Entries, "");
+
 
         candleDataSet.setIncreasingColor(increasingColor);
         candleDataSet.setDecreasingColor(decreasingColor);
@@ -185,6 +262,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         lineDataSetMA5.setDrawCircles(false);
         lineDataSetMA10.setDrawCircles(false);
         lineDataSetMA30.setDrawCircles(false);
+
 
         //平均線顏色
         lineDataSetMA5.setColor(color_ma5);
@@ -200,6 +278,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         lineDataSetMA5.setDrawValues(false);
         lineDataSetMA10.setDrawValues(false);
         lineDataSetMA30.setDrawValues(false);
+
 
         candleDataSet.setDrawIcons(false);
         // TODO: 2018/9/27 Y轴
@@ -260,7 +339,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     }
 
     private void addMA10Data(int i) {
-        if (i > 9) {
+        if (i > 8) {
             ma10Entries.add(new Entry(i, (candleEntries.get(i - 9).getClose() +
                     candleEntries.get(i - 8).getClose() +
                     candleEntries.get(i - 7).getClose() +
@@ -287,7 +366,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     //初始化变量
     private void initParam() {
 
-        maLineWidth = DimensUtil.px2dp(getContext(),2);
+        maLineWidth = DimensUtil.px2dp(getContext(), 2);
         increasingColor = Color.parseColor("#03C087");
         decreasingColor = Color.parseColor("#E66C41");
         neutralColor = Color.parseColor("#03C087");

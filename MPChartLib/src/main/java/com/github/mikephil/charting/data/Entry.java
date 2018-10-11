@@ -19,6 +19,7 @@ public class Entry extends BaseEntry implements Parcelable {
     /** the x value */
     private float x = 0f;
 
+
     public Entry() {
 
     }
@@ -33,6 +34,7 @@ public class Entry extends BaseEntry implements Parcelable {
         super(y);
         this.x = x;
     }
+
 
     /**
      * A Entry represents one single entry in the chart.
