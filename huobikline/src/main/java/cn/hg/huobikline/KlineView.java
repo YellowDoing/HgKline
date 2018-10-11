@@ -135,6 +135,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         yAxisRight.setYOffset(0f); //文字靠边
         yAxisRight.setXOffset(0f); //文字靠边
         //sadasd
+        //sdfdsfse
 
         yAxisRight.setTextColor(yAxisTextColor);
     }
