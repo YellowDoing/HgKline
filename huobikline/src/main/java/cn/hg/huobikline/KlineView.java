@@ -3,8 +3,10 @@ package cn.hg.huobikline;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -40,6 +42,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     private CombinedChart combinedChart;
     private List<CandleEntry> candleEntries = new ArrayList<>();
     private List<CandleEntry> minuteEntries = new ArrayList<>();
+    private List<Entry> minutesData2 = new ArrayList<>();
     private List<Entry> ma10Entries = new ArrayList<>();
     private List<Entry> ma30Entries = new ArrayList<>();
     private List<Entry> ma5Entries = new ArrayList<>();
@@ -112,29 +115,10 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         combinedChart.setMinOffset(5f); //设置边距
         combinedChart.setNoDataText(""); //无数据显示
         combinedChart.getLegend().setEnabled(false); //禁止顯示圖例
-
-
-        combinedChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            @Override
-            public void onValueSelected(Entry e, Highlight h) {
-
-                if (isMinute) { //分時圖
-                    // e.get
-                } else {
-                    setMaData(e);
-                }
-            }
-
-            @Override
-            public void onNothingSelected() {
-
-            }
-        });
+        combinedChart.setOnChartValueSelectedListener(this);
     }
 
     private void setMaData(Entry e) {
-
-
 
         int j = candleEntries.indexOf(e);
         if (j == -1) {
@@ -217,11 +201,18 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
      * 设置分时图
      */
     public void setMinuteData(List<CandleEntry> data) {
+        tv_ma5.setText("");
+        tv_ma10.setText("");
+        tv_ma30.setText("");
+
         isMinute = true;
         minuteEntries = data;
+        tv_ma5.setTextColor(color_ma60m);
+        tv_ma5.setTextSize(TypedValue.COMPLEX_UNIT_SP, maTextSize);
 
-        List<Entry> minutesData = DataTransferHelper.transfer2Entry(data);
+        minutesData2 = DataTransferHelper.transfer2Entry(data);
 
+        ma60mEntries.clear();
         if (minuteEntries.size() > 59){
             for (int i = 59; i < minuteEntries.size(); i++) {
                 CandleEntry entry = minuteEntries.get(i);
@@ -229,21 +220,25 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
             }
         }
 
-        LineDataSet dataSet = new LineDataSet(minutesData, "");
+        LineDataSet dataSet = new LineDataSet(minutesData2, "");
         dataSet.setColor(Color.parseColor("#66b3ff")); //折线颜色
         dataSet.setDrawFilled(true); //内部填充
         dataSet.setLineWidth(1f); //折线的宽度
         dataSet.setDrawCircles(false); //不画圆
         dataSet.setDrawValues(false); //不显示数据
+        Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.fade_blue);
+        dataSet.setFillDrawable(drawable);
+
         combinedChart.getDescription().setEnabled(false); //禁用描述
         combinedChart.getLegend().setEnabled(false); //禁用图例
+
+        combinedChart.setOnChartValueSelectedListener(this);
 
         LineDataSet lineDataSetMA60 = new LineDataSet(ma60mEntries, "");
         lineDataSetMA60.setDrawCircles(false); //ma60不画圆
         lineDataSetMA60.setColor(color_ma60m); //ma60颜色
         lineDataSetMA60.setLineWidth(maLineWidth);//ma60线的宽度
         lineDataSetMA60.setDrawValues(false);//不显示数据
-
 
 
         LineData lineData = new LineData(dataSet,lineDataSetMA60);
@@ -255,6 +250,10 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     }
 
     public void setData(List<CandleEntry> data) {
+        tv_ma5.setText("");
+        tv_ma10.setText("");
+        tv_ma30.setText("");
+
         isMinute = false;
         setParam();
 
@@ -337,7 +336,6 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
     }
 
 
-
     private void addMA10Data(int i) {
         if (i > 8) {
             ma10Entries.add(new Entry(candleEntries.get(i).getX(), MACalculator.calculate(i,10,candleEntries)));
@@ -374,7 +372,19 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
 
     @Override
     public void onValueSelected(Entry e, Highlight h) {
-
+        if (isMinute) { //分時圖
+            int j = minutesData2.indexOf(e);
+            if (j == -1){ //点击的ma60m
+                tv_ma5.setText("MA60:" + e.getY());
+            }else { //点击直线图
+                if (j < 59)
+                    tv_ma5.setText("");
+                else
+                    tv_ma5.setText("MA60:" + ma60mEntries.get(j - 59).getY());
+            }
+        } else {
+            setMaData(e);
+        }
     }
 
     /********************* getter and setter ******************/

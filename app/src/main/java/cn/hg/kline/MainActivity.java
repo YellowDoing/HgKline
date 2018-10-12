@@ -5,6 +5,8 @@ import android.graphics.Paint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 
@@ -42,19 +44,28 @@ public class MainActivity extends AppCompatActivity{
 
         List<Data> datas = new Gson().fromJson(JsonReader.getJson("data.json", this), new TypeToken<List<Data>>() {
         }.getType());
-        List<CandleEntry> candleEntries = new ArrayList<>();
+        final List<CandleEntry> candleEntries = new ArrayList<>();
         for (int i = 0; i < datas.size(); i++) {
             Data data = datas.get(i);
             candleEntries.add(new CandleEntry(i, data.getHigh(), data.getLow(), data.getOpen(), data.getClose()));
         }
-        mKlineView.setMinuteData(candleEntries);
-    }
 
+        mKlineView.setData(candleEntries);
 
-    //long转换类
-    private String transferLongToDate(Long millSec) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = new Date(millSec);
-        return sdf.format(date);
+        //分时图
+        findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mKlineView.setMinuteData(candleEntries);
+            }
+        });
+
+        //K线图
+        findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mKlineView.setData(candleEntries);
+            }
+        });
     }
 }
