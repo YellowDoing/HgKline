@@ -107,7 +107,7 @@ public class KlineView extends FrameLayout implements OnChartValueSelectedListen
         tv_ma30.setTextSize(TypedValue.COMPLEX_UNIT_SP, maTextSize);
     }
 
-    //设置CombinedChart参数
+    //设置CombinedChart参数sdfdsfsdfsefsdfse
     private void setCombineChart() {
         combinedChart.setScaleYEnabled(false); //禁止Y轴方向放大
         combinedChart.setAutoScaleMinMaxEnabled(true); //?
