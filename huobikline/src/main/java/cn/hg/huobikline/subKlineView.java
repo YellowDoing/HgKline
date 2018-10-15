@@ -5,8 +5,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -34,6 +37,8 @@ public class subKlineView extends FrameLayout implements OnChartValueSelectedLis
     private List<CandleEntry> datas = new ArrayList<>();
 
     private int current_mode;
+    private TextView text_1,text_2,text_3,text_4;
+    private CombinedChart mCombinedChart;
 
 
     public subKlineView(@NonNull Context context) {
@@ -52,7 +57,13 @@ public class subKlineView extends FrameLayout implements OnChartValueSelectedLis
     }
 
     private void init(){
+        LayoutInflater.from(getContext()).inflate(R.layout.view_kline_sub,this,false);
+        mCombinedChart = findViewById(R.id.chart);
 
+        text_1 = findViewById(R.id.text_1);
+        text_2 = findViewById(R.id.text_2);
+        text_3 = findViewById(R.id.text_3);
+        text_4 = findViewById(R.id.text_4);
 
     }
 
