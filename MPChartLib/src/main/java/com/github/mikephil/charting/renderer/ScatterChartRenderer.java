@@ -22,7 +22,7 @@ import java.util.List;
 
 public class ScatterChartRenderer extends LineScatterCandleRadarRenderer {
 
-    protected ScatterDataProvider mChart;
+    public ScatterDataProvider mChart;
 
     public ScatterChartRenderer(ScatterDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(animator, viewPortHandler);

@@ -29,7 +29,7 @@ import java.util.List;
 
 public class LineChartRenderer extends LineRadarRenderer {
 
-    protected LineDataProvider mChart;
+    public LineDataProvider mChart;
 
     /**
      * paint for the inner circle of the value indicators

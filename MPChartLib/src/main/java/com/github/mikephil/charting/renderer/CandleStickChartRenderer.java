@@ -22,7 +22,7 @@ import java.util.List;
 
 public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
 
-    protected CandleDataProvider mChart;
+    public CandleDataProvider mChart;
 
     private float[] mShadowBuffers = new float[8];
     private float[] mBodyBuffers = new float[4];

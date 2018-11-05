@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class BubbleChartRenderer extends BarLineScatterCandleBubbleRenderer {
 
-    protected BubbleDataProvider mChart;
+    public BubbleDataProvider mChart;
 
     public BubbleChartRenderer(BubbleDataProvider chart, ChartAnimator animator,
                                ViewPortHandler viewPortHandler) {
